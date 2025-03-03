@@ -20,12 +20,18 @@ TOKEN = os.getenv('BOT_TOKEN')
 if not TOKEN:
     raise ValueError("No BOT_TOKEN environment variable set!")
 
+# Debug logging for token (first 5 characters only for security)
+logger.info(f"Bot token loaded: {TOKEN[:5]}...")
+
 bot = telebot.TeleBot(TOKEN)
 
 # Database Connection (PostgreSQL)
 DATABASE_URL = os.getenv('DATABASE_URL')
 if not DATABASE_URL:
     raise ValueError("No DATABASE_URL environment variable set!")
+
+# Debug logging for database URL (first 20 characters only for security)
+logger.info(f"Database URL loaded: {DATABASE_URL[:20]}...")
 
 # Admins & Channel
 ADMINS = [1547087017, 1154080413, 1071518993]
