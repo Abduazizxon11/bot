@@ -22,11 +22,7 @@ logger.info(f"Bot token loaded: {TOKEN[:5]}...")
 bot = telebot.TeleBot(TOKEN)
 
 # Database Connection (PostgreSQL)
-DATABASE_URL = os.getenv('DATABASE_URL')
-if not DATABASE_URL:
-    raise ValueError("No DATABASE_URL environment variable set!")
-
-# Debug logging for database URL (first 20 characters only for security)
+DATABASE_URL = "postgresql://postgres:tiSCQbRJGwDlDMiTyBqpwGxUcLLfkgjY@postgres.railway.internal:5432/railway"
 logger.info(f"Database URL loaded: {DATABASE_URL[:20]}...")
 
 # Admins & Channel
@@ -37,6 +33,10 @@ MAX_USERS = 75
 
 # Flask App for Webhooks
 app = Flask(__name__)
+
+# Webhook settings
+WEBHOOK_HOST = "https://honest-wisdom.up.railway.app"
+logger.info(f"Webhook host: {WEBHOOK_HOST}")
 
 # Database Functions
 def connect_db():
@@ -172,10 +172,6 @@ def ask_age(message, user_id, phone, name):
         bot.register_next_step_handler(message, ask_age, user_id, phone, name)
 
 # Webhook settings
-WEBHOOK_HOST = os.getenv('WEBHOOK_HOST')
-if not WEBHOOK_HOST:
-    raise ValueError("No WEBHOOK_HOST environment variable set!")
-
 WEBHOOK_PATH = f'/webhook/{TOKEN}'
 WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
 
