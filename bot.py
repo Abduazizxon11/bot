@@ -4,17 +4,30 @@ import psycopg2
 import os
 from flask import Flask, request
 import threading
+from urllib.parse import urlparse
 
 # Telegram Bot Token
-TOKEN = os.getenv('7589416221:AAG0XhJZ1U3y-0IH8RH2z8Vih5uvyE47nTQ')
+TOKEN = os.getenv('BOT_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 
 # Database Connection (PostgreSQL)
-DB_NAME = "smth_bot_db"
-DB_USER = "postgres"
-DB_PASSWORD = "root"
-DB_HOST = "localhost"
-DB_PORT = "5432"
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL:
+    # Parse the DATABASE_URL to get individual components
+    db_url = urlparse(DATABASE_URL)
+    DB_NAME = db_url.path[1:]  # Remove the leading '/'
+    DB_USER = db_url.username
+    DB_PASSWORD = db_url.password
+    DB_HOST = db_url.hostname
+    DB_PORT = db_url.port
+else:
+    # Fallback to individual environment variables
+    DB_NAME = os.getenv('DB_NAME', 'your_db')
+    DB_USER = os.getenv('DB_USER', 'your_user')
+    DB_PASSWORD = os.getenv('DB_PASSWORD', 'your_password')
+    DB_HOST = os.getenv('DB_HOST', 'localhost')
+    DB_PORT = os.getenv('DB_PORT', '5432')
 
 # Admins & Channel
 ADMINS = [1547087017, 1154080413, 1071518993]
