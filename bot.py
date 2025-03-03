@@ -35,7 +35,7 @@ MAX_USERS = 75
 app = Flask(__name__)
 
 # Webhook settings
-WEBHOOK_HOST = "https://honest-wisdom.up.railway.app"
+WEBHOOK_HOST = "https://bot-production-f3b4.up.railway.app"
 logger.info(f"Webhook host: {WEBHOOK_HOST}")
 
 # Database Functions
@@ -194,12 +194,18 @@ def setup_webhook():
         logger.error(f"Error setting webhook: {e}")
         raise
 
+# Add callback handler for the "starting" button
+@bot.callback_query_handler(func=lambda call: call.data == "starting")
+def callback_starting(call):
+    bot.answer_callback_query(call.id)
+    bot.send_message(call.message.chat.id, "Great! Use /register command to start registration process.")
+
 if __name__ == "__main__":
     try:
         # Setup webhook
         setup_webhook()
         # Start Flask server
-        port = int(os.getenv('PORT', 5000))
+        port = int(os.getenv('PORT', 8080))  # Railway often uses port 8080
         logger.info(f"Starting server on port {port}")
         app.run(host='0.0.0.0', port=port)
     except Exception as e:
