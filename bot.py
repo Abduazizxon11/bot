@@ -6,6 +6,11 @@ from flask import Flask, request
 import threading
 from urllib.parse import urlparse
 from dotenv import load_dotenv
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -18,7 +23,9 @@ if not TOKEN:
 bot = telebot.TeleBot(TOKEN)
 
 # Database Connection (PostgreSQL)
-DATABASE_URL = os.getenv('DATABASE_URL', "postgresql://postgres:tiSCQbRJGwDlDMiTyBqpwGxUcLLfkgjY@interchange.proxy.rlwy.net:20978/railway")
+DATABASE_URL = os.getenv('DATABASE_URL')
+if not DATABASE_URL:
+    raise ValueError("No DATABASE_URL environment variable set!")
 
 # Admins & Channel
 ADMINS = [1547087017, 1154080413, 1071518993]
@@ -31,7 +38,11 @@ app = Flask(__name__)
 
 # Database Functions
 def connect_db():
-    return psycopg2.connect(DATABASE_URL)
+    try:
+        return psycopg2.connect(DATABASE_URL)
+    except Exception as e:
+        logger.error(f"Database connection error: {e}")
+        raise
 
 def create_db():
     conn = connect_db()
@@ -84,9 +95,13 @@ def is_subscribed(user_id):
 
 @app.route(f'/{TOKEN}', methods=['POST'])
 def webhook():
-    update = request.get_json()
-    bot.process_new_updates([telebot.types.Update.de_json(update)])
-    return "OK", 200
+    try:
+        update = request.get_json()
+        bot.process_new_updates([telebot.types.Update.de_json(update)])
+        return "OK", 200
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        return "Error", 500
 
 @bot.message_handler(commands=['start'])
 def greeting(message):
@@ -155,25 +170,40 @@ def ask_age(message, user_id, phone, name):
         bot.register_next_step_handler(message, ask_age, user_id, phone, name)
 
 # Webhook settings
-WEBHOOK_HOST = os.getenv('WEBHOOK_HOST', 'https://bot-socratic-quiz.up.railway.app')
+WEBHOOK_HOST = os.getenv('WEBHOOK_HOST')
+if not WEBHOOK_HOST:
+    raise ValueError("No WEBHOOK_HOST environment variable set!")
+
 WEBHOOK_PATH = f'/webhook/{TOKEN}'
 WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
 
-# Remove webhook and polling settings
 @app.route('/webhook_info')
 def webhook_info():
-    return bot.get_webhook_info().to_dict()
+    try:
+        return bot.get_webhook_info().to_dict()
+    except Exception as e:
+        logger.error(f"Webhook info error: {e}")
+        return {"error": str(e)}, 500
 
 def setup_webhook():
     try:
+        logger.info("Removing old webhook...")
         bot.remove_webhook()
+        logger.info(f"Setting new webhook to {WEBHOOK_URL}")
         bot.set_webhook(url=WEBHOOK_URL)
-        print(f"Webhook set to {WEBHOOK_URL}")
+        logger.info("Webhook setup completed successfully")
     except Exception as e:
-        print(f"Error setting webhook: {e}")
+        logger.error(f"Error setting webhook: {e}")
+        raise
 
 if __name__ == "__main__":
-    # Setup webhook
-    setup_webhook()
-    # Start Flask server
-    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+    try:
+        # Setup webhook
+        setup_webhook()
+        # Start Flask server
+        port = int(os.getenv('PORT', 5000))
+        logger.info(f"Starting server on port {port}")
+        app.run(host='0.0.0.0', port=port)
+    except Exception as e:
+        logger.error(f"Application startup error: {e}")
+        raise
