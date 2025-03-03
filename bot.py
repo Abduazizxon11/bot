@@ -178,7 +178,16 @@ WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
 @app.route('/webhook_info')
 def webhook_info():
     try:
-        return bot.get_webhook_info().to_dict()
+        info = bot.get_webhook_info()
+        return {
+            "url": info.url,
+            "has_custom_certificate": info.has_custom_certificate,
+            "pending_update_count": info.pending_update_count,
+            "last_error_date": info.last_error_date,
+            "last_error_message": info.last_error_message,
+            "max_connections": info.max_connections,
+            "ip_address": info.ip_address
+        }
     except Exception as e:
         logger.error(f"Webhook info error: {e}")
         return {"error": str(e)}, 500
