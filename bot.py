@@ -16,11 +16,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Telegram Bot Token
-TOKEN = os.getenv('BOT_TOKEN')
-if not TOKEN:
-    raise ValueError("No BOT_TOKEN environment variable set!")
-
-# Debug logging for token (first 5 characters only for security)
+TOKEN = "7589416221:AAG0XhJZ1U3y-0IH8RH2z8Vih5uvyE47nTQ"
 logger.info(f"Bot token loaded: {TOKEN[:5]}...")
 
 bot = telebot.TeleBot(TOKEN)
