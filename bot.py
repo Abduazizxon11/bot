@@ -95,7 +95,7 @@ def is_subscribed(user_id):
     except Exception as e:
         return False
 
-@app.route(f'/{TOKEN}', methods=['POST'])
+@app.route(f'/webhook/{TOKEN}', methods=['POST'])
 def webhook():
     try:
         update = request.get_json()
