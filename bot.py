@@ -5,13 +5,20 @@ import os
 from flask import Flask, request
 import threading
 from urllib.parse import urlparse
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Telegram Bot Token
 TOKEN = os.getenv('BOT_TOKEN')
+if not TOKEN:
+    raise ValueError("No BOT_TOKEN environment variable set!")
+
 bot = telebot.TeleBot(TOKEN)
 
 # Database Connection (PostgreSQL)
-DATABASE_URL = "postgresql://postgres:tiSCQbRJGwDlDMiTyBqpwGxUcLLfkgjY@interchange.proxy.rlwy.net:20978/railway"
+DATABASE_URL = os.getenv('DATABASE_URL', "postgresql://postgres:tiSCQbRJGwDlDMiTyBqpwGxUcLLfkgjY@interchange.proxy.rlwy.net:20978/railway")
 
 # Admins & Channel
 ADMINS = [1547087017, 1154080413, 1071518993]
@@ -147,9 +154,26 @@ def ask_age(message, user_id, phone, name):
         bot.send_message(user_id, "Error! Please enter a valid age:")
         bot.register_next_step_handler(message, ask_age, user_id, phone, name)
 
-# Webhook Setup (Moved to Global Level)
-bot.remove_webhook()
-bot.set_webhook(url=f"https://yourdomain.com/{TOKEN}")
+# Webhook settings
+WEBHOOK_HOST = os.getenv('WEBHOOK_HOST', 'https://bot-socratic-quiz.up.railway.app')
+WEBHOOK_PATH = f'/webhook/{TOKEN}'
+WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
+
+# Remove webhook and polling settings
+@app.route('/webhook_info')
+def webhook_info():
+    return bot.get_webhook_info().to_dict()
+
+def setup_webhook():
+    try:
+        bot.remove_webhook()
+        bot.set_webhook(url=WEBHOOK_URL)
+        print(f"Webhook set to {WEBHOOK_URL}")
+    except Exception as e:
+        print(f"Error setting webhook: {e}")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    # Setup webhook
+    setup_webhook()
+    # Start Flask server
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
