@@ -2,15 +2,10 @@ import os
 import psycopg2
 from urllib.parse import urlparse
 
+DATABASE_URL = "postgresql://postgres:tiSCQbRJGwDlDMiTyBqpwGxUcLLfkgjY@interchange.proxy.rlwy.net:20978/railway"
+
 def test_connection():
     try:
-        # Get DATABASE_URL from environment variable
-        DATABASE_URL = os.getenv('DATABASE_URL')
-        
-        if not DATABASE_URL:
-            print("ERROR: DATABASE_URL environment variable not set")
-            return False
-            
         # Connect to the database
         conn = psycopg2.connect(DATABASE_URL)
         

@@ -11,23 +11,7 @@ TOKEN = os.getenv('BOT_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 
 # Database Connection (PostgreSQL)
-DATABASE_URL = os.getenv('DATABASE_URL')
-
-if DATABASE_URL:
-    # Parse the DATABASE_URL to get individual components
-    db_url = urlparse(DATABASE_URL)
-    DB_NAME = db_url.path[1:]  # Remove the leading '/'
-    DB_USER = db_url.username
-    DB_PASSWORD = db_url.password
-    DB_HOST = db_url.hostname
-    DB_PORT = db_url.port
-else:
-    # Fallback to individual environment variables
-    DB_NAME = os.getenv('DB_NAME', 'your_db')
-    DB_USER = os.getenv('DB_USER', 'your_user')
-    DB_PASSWORD = os.getenv('DB_PASSWORD', 'your_password')
-    DB_HOST = os.getenv('DB_HOST', 'localhost')
-    DB_PORT = os.getenv('DB_PORT', '5432')
+DATABASE_URL = "postgresql://postgres:tiSCQbRJGwDlDMiTyBqpwGxUcLLfkgjY@interchange.proxy.rlwy.net:20978/railway"
 
 # Admins & Channel
 ADMINS = [1547087017, 1154080413, 1071518993]
@@ -40,7 +24,7 @@ app = Flask(__name__)
 
 # Database Functions
 def connect_db():
-    return psycopg2.connect(database=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT)
+    return psycopg2.connect(DATABASE_URL)
 
 def create_db():
     conn = connect_db()
