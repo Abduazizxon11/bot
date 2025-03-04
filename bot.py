@@ -29,7 +29,7 @@ logger.info(f"Database URL loaded: {DATABASE_URL[:20]}...")
 ADMINS = [1547087017, 1154080413, 1071518993]
 CHAT_ID = -1002433031538
 CHANNEL_USE = "@socraticquiz"
-MAX_USERS = 75
+MAX_USERS = 150
 
 # Flask App for Webhooks
 app = Flask(__name__)

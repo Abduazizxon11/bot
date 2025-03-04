@@ -25,3 +25,4 @@ pip install -r requirements.txt
 2. Run the bot:
 ```bash
 python bot.py 
+```
