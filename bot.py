@@ -7,11 +7,15 @@ import time
 
 load_dotenv()
 
-# Проверяем, что все переменные заданы
-REQUIRED_ENV_VARS = ["BOT_TOKEN", "DATABASE_URL"]
-for var in REQUIRED_ENV_VARS:
-    if not os.getenv(var):
-        raise ValueError(f"❌ ERROR: {var} is not set in .env file!")
+# Print environment variables for debugging (without sensitive data)
+print("Available environment variables:", [var for var in os.environ.keys()])
+
+# Try internal Railway PostgreSQL URL first
+DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql://postgres:tiSCQbRJGwDlDMiTyBqpwGxUcLLfkgjY@postgres.railway.internal:5432/railway"
+
+# Проверяем только BOT_TOKEN
+if not os.getenv("BOT_TOKEN"):
+    raise ValueError("❌ ERROR: BOT_TOKEN is not set!")
 
 # Настройки
 bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
@@ -23,27 +27,45 @@ user_message = {}
 
 # Подключение к БД
 def connect_db():
-    return psycopg2.connect(os.getenv("DATABASE_URL"))
+    try:
+        print("Attempting to connect to database...")
+        conn = psycopg2.connect(DATABASE_URL)
+        print("Database connection successful!")
+        return conn
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        raise
 
 # Создание таблицы
 def create_db():
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        user_id BIGINT UNIQUE,
-        phone TEXT,
-        name TEXT,
-        age INTEGER,
-        username TEXT
-    )
-    """)
-    conn.commit()
-    cursor.close()
-    conn.close()
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            user_id BIGINT UNIQUE,
+            phone TEXT,
+            name TEXT,
+            age INTEGER,
+            username TEXT
+        )
+        """)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print("Database table created successfully!")
+    except Exception as e:
+        print(f"Error creating database table: {e}")
+        raise
 
-create_db()
+try:
+    print("Initializing database...")
+    create_db()
+    print("Database initialization complete!")
+except Exception as e:
+    print(f"Database initialization error: {e}")
+    raise
 
 # Получение пользователя
 def get_user(user_id):
