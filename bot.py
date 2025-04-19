@@ -8,15 +8,15 @@ import time
 load_dotenv()
 
 # Проверяем, что все переменные заданы
-REQUIRED_ENV_VARS = ["Bot_token", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_HOST", "DB_PORT"]
+REQUIRED_ENV_VARS = ["BOT_TOKEN", "PGDATABASE", "PGUSER", "PGPASSWORD", "PGHOST", "PGPORT"]
 for var in REQUIRED_ENV_VARS:
     if not os.getenv(var):
         raise ValueError(f"❌ ERROR: {var} is not set in .env file!")
 
 # Настройки
-bot = telebot.TeleBot(os.getenv("Bot_token"))
+bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
 chat = -1002433031538
-ADMINS = [1547087017, 1154080413, 1071518993]
+ADMINS = [1547087017, 1154080413, 1071518993, 1280496237]
 channel = "@socraticquiz"
 max_user = 500
 user_message = {}
@@ -24,11 +24,11 @@ user_message = {}
 # Подключение к БД
 def connect_db():
     return psycopg2.connect(
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT")
+        dbname=os.getenv("PGDATABASE"),
+        user=os.getenv("PGUSER"),
+        password=os.getenv("PGPASSWORD"),
+        host=os.getenv("PGHOST"),
+        port=os.getenv("PGPORT")
     )
 
 # Создание таблицы
