@@ -258,7 +258,7 @@ def accept_user(call):
         bot.send_photo(user_id, photo, caption="✅ Congratulations! Your registration has been accepted. Welcome to Socratic Community! 🎉")
 
     bot.send_location(user_id, 41.308228, 69.244500)
-    bot.send_message(user_id, "Location: SATASHKENT\nTime: 1 p.m")
+    bot.send_message(user_id, "Location: SATASHKENT\nTime: 12 a.m")
     bot.send_message(user_id, f"Your verified key {call.from_user.id}")
 
     try:
